@@ -85,13 +85,14 @@ table.on('toolbar(itemToolBar)',function(obj) {
 				var data = checkStatus.data;
 					$.ajax({
 						type : "POST",
-						url : "/item/itemDelete",
+                        url : "/item/itemDelete",
 						contentType : "application/json;charset=utf-8",
 						data : JSON.stringify(data),
 						dataType : "json",
 						success : function(message) {
 						if (message.status == 200) {
-							layer.alert('删除商品成功');
+							layer.alert(message.msg);
+							//这个代码是layui的代码  重新加载的意思 重新请求 加载table最新的数据
 							table.reload('reloadTable',{});
 						} else {
 							layer.alert(message.msg);
@@ -128,6 +129,7 @@ table.on('toolbar(itemToolBar)',function(obj) {
 					success : function(message) {
 					if (message.status == 200) {
 						layer.alert(message.msg);
+						//自动请求 服务器  获取最新的table表中的数据 {}里面可以携带参数 比如携带 当前页面
 						table.reload('reloadTable',{});
 					} else {
 						layer.alert(message.msg);
