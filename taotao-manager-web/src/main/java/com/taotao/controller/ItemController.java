@@ -1,5 +1,6 @@
 package com.taotao.controller;
 
+import com.taotao.pojo.LayuiResult;
 import com.taotao.pojo.TbItem;
 import com.taotao.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,13 @@ public class ItemController {
     @ResponseBody
     public TbItem findTbItem(@PathVariable Long itemId){
         TbItem result = itemService.findTbItemById(itemId);
+        return result;
+    }
+    //http://localhost:8081/item/showItemPage?page=1&limit=10
+    @RequestMapping("/showItemPage")
+    @ResponseBody
+    public LayuiResult showItemPage(Integer page,Integer limit){
+        LayuiResult result = itemService.findTbItemByPage(page, limit);
         return result;
     }
 }
