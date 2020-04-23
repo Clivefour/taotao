@@ -6,7 +6,7 @@ import com.taotao.pojo.TbItem;
 
 import java.util.Date;
 import java.util.List;
-
+//商品服务
 public interface ItemService {
     TbItem findTbItemById(Long itemId);
 

@@ -87,5 +87,5 @@
         接口和实现类 有关系了
      -->
     <dubbo:service interface="com.taotao.service.ItemService" ref="itemServiceImpl" />
-
+    <dubbo:service interface="com.taotao.service.ItemCatService" ref="itemCatServiceImpl" />
 </beans>
