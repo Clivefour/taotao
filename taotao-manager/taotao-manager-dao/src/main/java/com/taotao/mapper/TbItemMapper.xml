@@ -4,7 +4,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.taotao.mapper.TbItemMapper">
-
+    <sql id="serach">
+        <where>
+            <if test="title != ''">
+                and title LIKE "%${title}%" AND
+            </if>
+            price BETWEEN #{priceMin} AND #{priceMax}
+            <if test="cId !=null">
+                AND cId = #{cId}
+            </if>
+        </where>
+    </sql>
     <update id="updateItemByIds">
         UPDATE tbitem SET status = #{type} , updated = #{date}
         <where>
@@ -13,6 +23,25 @@
             </foreach>
         </where>
     </update>
+
+    <select id="findTbItemByLikeConut" resultType="int">
+        SELECT count(*) FROM tbitem
+        <include refid="serach"/>
+    </select>
+
+    <select id="findTbItemByLike" resultType="com.taotao.pojo.TbItem">
+        SELECT * FROM tbitem
+        <where>
+            <if test="title != ''">
+                and title LIKE "%${title}%" AND
+            </if>
+            price BETWEEN #{priceMin} AND #{priceMax}
+            <if test="cId !=null">
+                AND cId = #{cId}
+            </if>
+        </where>
+        LIMIT #{page},#{limit}
+    </select>
 
 
 </mapper>

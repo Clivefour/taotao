@@ -65,4 +65,28 @@ public class ItemServiceImpl implements ItemService {
 
         return TaotaoResult.build(500,"商品修改",null);
     }
+
+    @Override
+    public LayuiResult getLikeItem(Integer page, Integer limit, String title, Integer priceMin, Integer priceMax, Long cId) {
+        if(priceMin == null){
+            priceMin = 0;
+        }
+        if(priceMax == null){
+            priceMax = 100000000;
+        }
+        /**
+         * 组装一下数据  然后 调用一个dao 得到结果集
+         *
+         */
+        LayuiResult result = new LayuiResult();
+        result.setCode(0);
+        result.setMsg("");
+        int count = tbItemMapper.findTbItemByLikeConut(title,priceMin,priceMax,cId);
+        //设置查询结果集的数量
+        result.setCount(count);
+        List<TbItem> data = tbItemMapper.findTbItemByLike(title,priceMin,priceMax,cId,(page-1)*limit,limit);
+        result.setData(data);
+
+        return result;
+    }
 }
