@@ -1,13 +1,16 @@
 package com.taotao.service.impl;
 
+import com.taotao.constant.FTPConstant;
 import com.taotao.mapper.TbItemMapper;
-import com.taotao.pojo.LayuiResult;
-import com.taotao.pojo.TaotaoResult;
-import com.taotao.pojo.TbItem;
+import com.taotao.pojo.*;
 import com.taotao.service.ItemService;
+import com.taotao.utils.FtpUtil;
+import com.taotao.utils.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -88,5 +91,28 @@ public class ItemServiceImpl implements ItemService {
         result.setData(data);
 
         return result;
+    }
+
+    @Override
+    public PictureResult addPicture(String fileNmae, byte[] bytes) {
+        Date date = new Date();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        //以每天的日期做为 文件夹的名称 在这个文件夹里面存放图片
+        String filePath = format.format(date);
+        //随机生成一个字符串   本身的名字 只要.jpg 随机字符串.jpg
+        String filename = IDUtils.genImageName()+fileNmae.substring(fileNmae.lastIndexOf("."));
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        boolean b = FtpUtil.uploadFile(FTPConstant.FTP_ADDRESS, FTPConstant.FTP_PORT, FTPConstant.FTP_USERNAME, FTPConstant.FTP_PASSWORD, FTPConstant.FILI_UPLOAD_PATH, filePath, filename, bis);
+        if(b){
+            PictureResult result = new PictureResult();
+            result.setCode(0);
+            result.setMsg("");
+            PictureData data = new PictureData();
+            data.setSrc(FTPConstant.IMAGE_BASE_URL+"/"+filePath+"/"+filename);
+            result.setData(data);
+            System.out.println(data.getSrc());
+            return result;
+        }
+        return null;
     }
 }

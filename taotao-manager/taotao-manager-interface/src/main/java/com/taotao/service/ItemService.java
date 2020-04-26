@@ -1,6 +1,7 @@
 package com.taotao.service;
 
 import com.taotao.pojo.LayuiResult;
+import com.taotao.pojo.PictureResult;
 import com.taotao.pojo.TaotaoResult;
 import com.taotao.pojo.TbItem;
 import java.util.Date;
@@ -31,4 +32,12 @@ public interface ItemService {
      * @return LayuiResult
      */
     LayuiResult getLikeItem(Integer page, Integer limit, String title, Integer priceMin, Integer priceMax, Long cId);
+
+    /**
+     * 上传图片到图片服务器
+     * @param fileName 图片的名字
+     * @param bytes 图片的字节数组
+     * @return layui固定格式
+     */
+    PictureResult addPicture(String fileName, byte[] bytes);
 }
