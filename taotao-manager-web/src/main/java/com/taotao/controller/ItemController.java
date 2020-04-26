@@ -102,4 +102,10 @@ public class ItemController {
         }
         return null;
     }
+    @RequestMapping("/addItem")
+    @ResponseBody
+    public TaotaoResult addItem(TbItem tbItem,String itemDesc){
+        TaotaoResult result = itemService.addItem(tbItem,itemDesc);
+        return result;
+    }
 }

@@ -40,4 +40,12 @@ public interface ItemService {
      * @return layui固定格式
      */
     PictureResult addPicture(String fileName, byte[] bytes);
+
+    /**
+     * 添加商品信息到数据库中
+     * @param tbItem 商品基本信息
+     * @param itemDesc 商品描述信息
+     * @return
+     */
+    TaotaoResult addItem(TbItem tbItem, String itemDesc);
 }

@@ -1,6 +1,7 @@
 package com.taotao.service.impl;
 
 import com.taotao.constant.FTPConstant;
+import com.taotao.mapper.TbItemDescMapper;
 import com.taotao.mapper.TbItemMapper;
 import com.taotao.pojo.*;
 import com.taotao.service.ItemService;
@@ -19,6 +20,8 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     @Autowired
     private TbItemMapper tbItemMapper;
+    @Autowired
+    private TbItemDescMapper tbItemDescMapper;
     @Override
     public TbItem findTbItemById(Long itemId) {
         TbItem tbItem = tbItemMapper.findTbItemById(itemId);
@@ -114,5 +117,34 @@ public class ItemServiceImpl implements ItemService {
             return result;
         }
         return null;
+    }
+
+    @Override
+    public TaotaoResult addItem(TbItem tbItem, String itemDesc) {
+        //生成一个商品id
+        Long itemId = IDUtils.genItemId();
+        //生成一个当前时间 作为 创建时间和修改时间
+        Date date = new Date();
+        tbItem.setId(itemId);
+        tbItem.setStatus((byte)1);
+        tbItem.setCreated(date);
+        tbItem.setUpdated(date);
+        //商品的基本信息准备完毕
+        int i = tbItemMapper.addItem(tbItem);
+        if(i<=0){
+            return TaotaoResult.build(500,"添加商品基本信息失败");
+        }
+        TbItemDesc tbItemDesc = new TbItemDesc();
+        tbItemDesc.setItemId(itemId);
+        tbItemDesc.setCreated(date);
+        tbItemDesc.setUpdated(date);
+        tbItemDesc.setItemDesc(itemDesc);
+        //商品描述信息准备完毕
+        int j = tbItemDescMapper.addItemDesc(tbItemDesc);
+        if(j<=0){
+            return TaotaoResult.build(500,"添加商品描述信息失败");
+        }
+
+        return TaotaoResult.build(200,"添加商品成功");
     }
 }
