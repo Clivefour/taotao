@@ -64,7 +64,6 @@ public class ItemCatServiceImpl implements ItemCatService {
                 if (parentId == 0 && count >= 14) {
                     break;
                 }
-
             }else{
                 //一定是最底级目录 一定是三级类目
                 list.add("/products/"+itemCat.getId()+".html|"+itemCat.getName());
