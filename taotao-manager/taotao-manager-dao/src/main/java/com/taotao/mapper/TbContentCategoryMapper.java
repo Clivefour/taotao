@@ -11,8 +11,6 @@ import java.util.List;
 public interface TbContentCategoryMapper {
     @Select("SELECT * FROM tbcontentcategory WHERE parentId = #{id}")
     List<TbContentCategory> findContentByParentId(Long id);
-    @Select("SELECT count(*) FROM tbcontent WHERE categoryId = #{categoryId}")
-    int findContentByCount(Long categoryId);
-    @Select("SELECT * FROM tbcontent WHERE categoryId = #{categoryId} LIMIT #{index},#{limit}")
-    List<TbContent> findContentByPage(@Param("categoryId") Long categoryId, @Param("index")Integer index, @Param("limit")Integer limit);
+
+
 }

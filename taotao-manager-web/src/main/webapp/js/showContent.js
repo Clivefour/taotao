@@ -115,6 +115,8 @@ $(function(){
 							}
 						});
 						break;
+					case 'updateContent':
+
 					};
 				});
 		});	
