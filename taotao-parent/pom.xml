@@ -12,6 +12,7 @@
         <module>../taotao-manager</module>
         <module>../taotao-manager-web</module>
         <module>../taotao-portal-web</module>
+        <module>../taotao-content</module>
     </modules>
     <!-- pom 聚合工程-->
     <packaging>pom</packaging>
