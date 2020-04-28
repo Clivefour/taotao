@@ -2,6 +2,8 @@ package com.taotao.content.service.impl;
 
 import com.taotao.content.service.ItemContentService;
 import com.taotao.mapper.TbContentCategoryMapper;
+import com.taotao.pojo.LayuiResult;
+import com.taotao.pojo.TbContent;
 import com.taotao.pojo.TbContentCategory;
 import com.taotao.pojo.ZtreeResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +28,17 @@ public class ItemContentServiceImpl implements ItemContentService {
             results.add(ztreeResult);
         }
         return results;
+    }
+
+    @Override
+    public LayuiResult findContentByCategoryId(Long categoryId, Integer page, Integer limit) {
+        LayuiResult result = new LayuiResult();
+        result.setCode(0);
+        result.setMsg("");
+        int count = tbContentCategoryMapper.findContentByCount(categoryId);
+        result.setCount(count);
+        List<TbContent> data = tbContentCategoryMapper.findContentByPage(categoryId,(page-1)*limit,limit);
+        result.setData(data);
+        return result;
     }
 }
