@@ -71,6 +71,13 @@
                      pointcut="execution(* com.taotao.content.service.*.*(..))" />
     </aop:config>
 
+    <!-- 配置单机版的连接 -->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="host" value="192.168.175.100"/>
+        <constructor-arg name="port" value="6379"/>
+    </bean>
+
+
     <!--发布服务到注册中心去-->
     <!-- 使用dubbo发布服务 -->
     <!-- 提供方应用信息，用于计算依赖关系 -->
