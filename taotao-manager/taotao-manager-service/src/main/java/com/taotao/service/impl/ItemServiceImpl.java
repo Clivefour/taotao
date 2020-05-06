@@ -1,20 +1,23 @@
 package com.taotao.service.impl;
 
-import com.taotao.constant.FTPConstant;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import com.taotao.mapper.TbItemDescMapper;
 import com.taotao.mapper.TbItemMapper;
 import com.taotao.pojo.*;
 import com.taotao.service.ItemService;
-import com.taotao.utils.FtpUtil;
 import com.taotao.utils.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -98,25 +101,38 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public PictureResult addPicture(String fileNmae, byte[] bytes) {
-        Date date = new Date();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
-        //以每天的日期做为 文件夹的名称 在这个文件夹里面存放图片
-        String filePath = format.format(date);
         //随机生成一个字符串   本身的名字 只要.jpg 随机字符串.jpg
         String filename = IDUtils.genImageName()+fileNmae.substring(fileNmae.lastIndexOf("."));
-        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-        boolean b = FtpUtil.uploadFile(FTPConstant.FTP_ADDRESS, FTPConstant.FTP_PORT, FTPConstant.FTP_USERNAME, FTPConstant.FTP_PASSWORD, FTPConstant.FILI_UPLOAD_PATH, filePath, filename, bis);
-        if(b){
-            PictureResult result = new PictureResult();
-            result.setCode(0);
-            result.setMsg("");
-            PictureData data = new PictureData();
-            data.setSrc(FTPConstant.IMAGE_BASE_URL+"/"+filePath+"/"+filename);
-            result.setData(data);
-            System.out.println(data.getSrc());
-            return result;
+        //阿里云
+        Properties properties = new Properties();
+        try {
+            FileInputStream fis = new FileInputStream("D:\\阿里云oos.txt");
+            properties.load(fis);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return null;
+
+        String endpoint = properties.getProperty("endpoint");
+        String accessKeyId =  properties.getProperty("accessKeyId");
+        String accessKeySecret =  properties.getProperty("accessKeySecret");
+        String bucketName =  properties.getProperty("bucketName");
+        String objectName =  properties.getProperty("objectName");
+        ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+        //阿里云对象
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        ossClient.putObject(bucketName,objectName+filename,bis);
+
+        PictureResult result = new PictureResult();
+        result.setCode(0);
+        result.setMsg("");
+        PictureData data = new PictureData();
+        data.setSrc("https://"+bucketName+".oss-cn-chengdu.aliyuncs.com/images/"+filename);
+        result.setData(data);
+        System.out.println(data.getSrc());
+        return result;
     }
 
     @Override
@@ -147,4 +163,6 @@ public class ItemServiceImpl implements ItemService {
 
         return TaotaoResult.build(200,"添加商品成功");
     }
+
+
 }

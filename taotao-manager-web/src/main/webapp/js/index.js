@@ -7,8 +7,8 @@ $(function() {
 	$("#showItem").click(function(){
 		$("#content").load("/jsp/showItem.jsp");
 	})
-	$("#addItemCat").click(function(){
-		$("#content").load("/jsp/addItemCat.jsp");
+	$("#initSolr").click(function(){
+		$("#content").load("/jsp/initSolr.jsp");
 	})
 	$("#addItem").click(function(){
 		$("#content").load("/jsp/addItem.jsp");

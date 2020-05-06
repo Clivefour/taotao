@@ -43,5 +43,25 @@
         LIMIT #{page},#{limit}
     </select>
 
+    <select id="findSearchItemAll" resultType="com.taotao.pojo.SearchItem">
+        SELECT
+            a.id,
+            a.title,
+            a.sellPoint,
+            a.price,
+            a.image,
+            b.`name` categoryName,
+            c.itemDesc
+        FROM
+            tbitem a
+        INNER JOIN
+            tbitemcat b
+        ON
+            a.cId = b.id
+        INNER JOIN
+            tbitemdesc c
+        ON
+            a.id = c.itemId
+    </select>
 
 </mapper>

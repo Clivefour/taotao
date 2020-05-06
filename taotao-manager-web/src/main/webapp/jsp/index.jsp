@@ -54,11 +54,9 @@ body, html, #allmap {
 					<li class="layui-nav-item"><a class="" href="javascript:;">商品管理</a>
 						<dl class="layui-nav-child">
 							<dd>
-								<a id="addItemCat" href="javascript:;">商品分类添加</a>
+								<a id="initSolr" href="javascript:;">商品数据初始化</a>
 							</dd>
-							<dd>
-								<a href="javascript:;">商品分类查询</a>
-							</dd>
+
 							<dd>
 								<a id="addItem" href="javascript:;">商品添加</a>
 							</dd>
