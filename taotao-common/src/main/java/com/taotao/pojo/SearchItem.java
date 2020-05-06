@@ -3,7 +3,7 @@ package com.taotao.pojo;
 import java.io.Serializable;
 
 public class SearchItem implements Serializable{
-    private Long id;
+    private String id;
     private String title;
     private String sellPoint;
     private Long price;
@@ -11,11 +11,11 @@ public class SearchItem implements Serializable{
     private String categoryName;
     private String itemDesc;
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -41,6 +41,14 @@ public class SearchItem implements Serializable{
 
     public void setPrice(Long price) {
         this.price = price;
+    }
+
+    public String getImages(){
+        if(this.image!=null&&!"".equals(this.image)){
+            String[] split = this.image.split("http");
+            return "http"+split[1];
+        }
+        return null;
     }
 
     public String getImage() {
@@ -70,7 +78,7 @@ public class SearchItem implements Serializable{
     @Override
     public String toString() {
         return "SearchItem{" +
-                "id=" + id +
+                "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", sellPoint='" + sellPoint + '\'' +
                 ", price=" + price +

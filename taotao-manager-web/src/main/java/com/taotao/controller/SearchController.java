@@ -16,7 +16,6 @@ public class SearchController {
     @RequestMapping("/importSolr")
     @ResponseBody
     public TaotaoResult importSolr(){
-        System.out.println("----->");
         TaotaoResult result = searchService.importSolr();
         return result;
     }
