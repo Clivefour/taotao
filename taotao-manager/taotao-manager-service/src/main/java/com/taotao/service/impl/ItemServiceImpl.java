@@ -8,12 +8,15 @@ import com.taotao.pojo.*;
 import com.taotao.service.ItemService;
 import com.taotao.utils.IDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
+
+import javax.jms.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +28,12 @@ public class ItemServiceImpl implements ItemService {
     private TbItemMapper tbItemMapper;
     @Autowired
     private TbItemDescMapper tbItemDescMapper;
+    @Autowired
+    private JmsTemplate jmsTemplate;
+    @Autowired
+    private Destination destination;
+
+
     @Override
     public TbItem findTbItemById(Long itemId) {
         TbItem tbItem = tbItemMapper.findTbItemById(itemId);
@@ -138,7 +147,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public TaotaoResult addItem(TbItem tbItem, String itemDesc) {
         //生成一个商品id
-        Long itemId = IDUtils.genItemId();
+        final Long itemId = IDUtils.genItemId();
         //生成一个当前时间 作为 创建时间和修改时间
         Date date = new Date();
         tbItem.setId(itemId);
@@ -160,6 +169,26 @@ public class ItemServiceImpl implements ItemService {
         if(j<=0){
             return TaotaoResult.build(500,"添加商品描述信息失败");
         }
+        /**
+         *        意味着前面都没有报错 添加商品成功了 我们应该做solr索引同步了
+         *        意味着他应该发布一个消息到消息队列里面去
+         *        提供给 search-service 来使用
+         *        为什么发送id过去呢 ？
+         *        因为 我发送了id过去  search-service可以根据id查询到商品信息
+         *        就会得到商品对象  使用solrService。add（商品对象）;
+         *
+         */
+
+        jmsTemplate.send(destination, new MessageCreator() {
+            @Override
+            public Message createMessage(Session session) throws JMSException {
+                TextMessage textMessage = session.createTextMessage();
+                textMessage.setText(itemId+"");
+                return textMessage;
+            }
+        });
+
+
 
         return TaotaoResult.build(200,"添加商品成功");
     }

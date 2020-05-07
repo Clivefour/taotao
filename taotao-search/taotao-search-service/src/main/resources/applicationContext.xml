@@ -77,6 +77,42 @@
     </bean>
 
 
+    <!--JMS 消息接收者-->
+    <!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供 -->
+    <bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="tcp://192.168.175.100:61616" />
+    </bean>
+    <!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory -->
+    <bean id="connectionFactory"
+          class="org.springframework.jms.connection.SingleConnectionFactory">
+        <!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory -->
+        <property name="targetConnectionFactory" ref="targetConnectionFactory" />
+    </bean>
+
+    <!--这个是队列目的地，点对点的
+    <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+        <constructor-arg>
+            <value>spring-queue</value>
+        </constructor-arg>
+    </bean>
+     -->
+    <!--这个是主题目的地，一对多的 -->
+    <bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="addItem" />
+    </bean>
+    <!-- 配置监听器 -->
+    <bean id="myMessageListener" class="com.taotao.search.listener.MyMessageListener" />
+
+    <!-- 消息监听容器
+        spring内置的一个对象 需要三个参数
+        spring 帮我们管理监听对象
+    -->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="destination" ref="topicDestination" />
+        <property name="messageListener" ref="myMessageListener" />
+    </bean>
+
 
     <!--发布服务到注册中心去-->
     <!-- 使用dubbo发布服务 -->

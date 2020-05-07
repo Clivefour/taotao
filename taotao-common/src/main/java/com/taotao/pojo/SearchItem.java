@@ -44,8 +44,8 @@ public class SearchItem implements Serializable{
     }
 
     public String getImages(){
-        if(this.image!=null&&!"".equals(this.image)){
-            String[] split = this.image.split("http");
+        if(image!=null&&!"".equals(image)){
+            String[] split = image.split("http");
             return "http"+split[1];
         }
         return null;

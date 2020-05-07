@@ -64,7 +64,7 @@ public class SearchServiceImpl implements SearchService {
             SolrQuery solrQuery = new SolrQuery();
             //用户输入的内容
             solrQuery.setQuery(query);
-            //设置默认域 我们默认从 复制域里面搜索
+            //设置默认域 我们默认从 复制域里面搜索 标题（） 卖点 描述 分类
             solrQuery.set("df","item_keywords");
             //设置高亮
             solrQuery.setHighlight(true);
@@ -77,44 +77,62 @@ public class SearchServiceImpl implements SearchService {
 
             //dao代码
             QueryResponse queryResponse = solrServer.query(solrQuery);
-            //文档集合对象
+            //solr文档集合对象
             SolrDocumentList documentList = queryResponse.getResults();
-            long totalConut = documentList.getNumFound();
-            long totalPages = (totalConut%60) ==0?(totalConut/60):(totalConut/60)+1;
+            long totalCount = documentList.getNumFound();
             //设置总记录条数
-            result.setTotalCount(totalConut);
+            result.setTotalCount(totalCount);
+            Long totalPages = (totalCount%60)==0?(totalCount/60):(totalCount/60)+1;
             //设置总页数
             result.setTotalPages(totalPages);
-
             List<SearchItem> itemList = new ArrayList<SearchItem>();
             for (SolrDocument document:documentList) {
                 SearchItem item = new SearchItem();
                 item.setId((String) document.get("id"));
                 item.setCategoryName((String) document.get("item_category_name"));
-                //你取出来的图片也是多张图片
-                String item_image = (String) document.get("item_image");
-                item.setImage(item_image);
-                item.setPrice((Long) document.get("item_price"));
+                item.setImage((String) document.get("item_image"));
+                item.setPrice((long) document.get("item_price"));
                 item.setSellPoint((String) document.get("item_sell_point"));
                 String item_title = "";
                 Map<String, Map<String, List<String>>> highlighting = queryResponse.getHighlighting();
                 List<String> list = highlighting.get(document.get("id")).get("item_title");
-                if(list != null && list.size() > 0){
+                if(list!=null&&list.size()>0){
                     item_title = list.get(0);
                 }else{
                     item_title = (String) document.get("item_title");
                 }
-                //才设置完成 标题 的高亮和不高亮的
                 item.setTitle(item_title);
-                //吧数据添加到集合里面去
                 itemList.add(item);
             }
-            //设置到返回结果集里面去
+
             result.setItemList(itemList);
             return result;
         } catch (SolrServerException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public void addSearchItem(SearchItem item) {
+
+        try {
+            SolrInputDocument document = new SolrInputDocument();
+            document.addField("id", item.getId());
+            document.addField("item_title", item.getTitle());
+            document.addField("item_sell_point", item.getSellPoint());
+            //存储成为 Lucene结构的图片 也是多张图片
+            document.addField("item_price", item.getPrice());
+            document.addField("item_image", item.getImage());
+            document.addField("item_category_name", item.getCategoryName());
+            document.addField("item_desc", item.getItemDesc());
+            solrServer.add(document);
+            solrServer.commit();
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
