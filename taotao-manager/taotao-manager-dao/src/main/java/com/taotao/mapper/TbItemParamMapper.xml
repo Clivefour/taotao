@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.taotao.mapper.TbItemParamMapper">
+    <insert id="addGroup">
+        <selectKey resultType="int" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+        INSERT INTO tbitemparamgroup(groupName, itemCatId) VALUE(#{groupName},#{itemCatId})
+
+    </insert>
+    <insert id="addGroupKey">
+        INSERT INTO tbitemparamkey(paramName, groupId) VALUES
+        <foreach collection="paramKeys" separator="," item="key">
+            (#{key.paramName},#{key.groupId})
+        </foreach>
+    </insert>
+</mapper>

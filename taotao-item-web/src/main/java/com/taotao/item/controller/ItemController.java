@@ -9,11 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.management.MalformedObjectNameException;
-
 @Controller
 @RequestMapping("/item")
 public class ItemController {
@@ -35,6 +31,11 @@ public class ItemController {
         TbItemDesc itemDesc = itemService.findTbItemDescByItemId(itemId);
 
         return itemDesc.getItemDesc();
+    }
+    @RequestMapping("/param/{itemId}")
+    @ResponseBody
+    public String showItemParam(@PathVariable Long itemId){
+        return null;
     }
 
 }

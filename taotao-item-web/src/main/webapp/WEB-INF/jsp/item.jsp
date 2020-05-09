@@ -268,6 +268,7 @@
         getItemParam:function(itemId) {
             //如果没有查询过规格参数，就做请求
             if (!itemControl.haveParam) {
+                // http://localhost:8086/item/param/商品id.html
                 $.get(itemControl.param.paramUrl+itemId+".html", function(data){
                     //返回商品规格的html，直接显示到页面
                     /*	alert(data);

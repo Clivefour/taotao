@@ -2,25 +2,25 @@ package com.taotao.service.impl;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.taotao.constant.RedisConstant;
 import com.taotao.mapper.TbItemDescMapper;
 import com.taotao.mapper.TbItemMapper;
 import com.taotao.pojo.*;
 import com.taotao.service.ItemService;
+import com.taotao.service.JedisClient;
 import com.taotao.utils.IDUtils;
+import com.taotao.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Service;
-
 import javax.jms.*;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Service
 public class ItemServiceImpl implements ItemService {
@@ -32,12 +32,38 @@ public class ItemServiceImpl implements ItemService {
     private JmsTemplate jmsTemplate;
     @Autowired
     private Destination destination;
+    @Autowired
+    private JedisClient jedisClient;
 
 
 
     @Override
     public TbItem findTbItemById(Long itemId) {
+        String json = jedisClient.get(RedisConstant.ITEM_INFO);
+        int rand = (int)(Math.random()*1000)+1;
+        //当json不为null 有数据的时候
+        if(StringUtils.isNotBlank(json)){
+            if(json.equals("null")){
+                return null;
+            }else{
+                TbItem tbItem = JsonUtils.jsonToPojo(json, TbItem.class);
+
+                jedisClient.expire(RedisConstant.ITEM_INFO,RedisConstant.REDIS_TIME_OUT+rand);
+                return tbItem;
+            }
+        }
+
+
         TbItem tbItem = tbItemMapper.findTbItemById(itemId);
+        if(tbItem==null){
+            jedisClient.set(RedisConstant.ITEM_INFO,"null");
+            jedisClient.expire(RedisConstant.ITEM_INFO,RedisConstant.REDIS_TIME_OUT);
+        }else {
+            //吧查询数据库得到的结果集存入到redis缓存中
+            jedisClient.set(RedisConstant.ITEM_INFO, JsonUtils.objectToJson(tbItem));
+            jedisClient.expire(RedisConstant.ITEM_INFO,RedisConstant.REDIS_TIME_OUT+rand);
+        }
+
         return tbItem;
     }
 
@@ -196,7 +222,30 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public TbItemDesc findTbItemDescByItemId(Long itemId) {
+        String json = jedisClient.get(RedisConstant.ITEM_DESC);
+        int rand = (int)(Math.random()*1000)+1;
+        //当json不为null 有数据的时候
+        if(StringUtils.isNotBlank(json)){
+            if(json.equals("null")){
+                return null;
+            }else{
+                TbItemDesc itemDesc = JsonUtils.jsonToPojo(json, TbItemDesc.class);
+
+                jedisClient.expire(RedisConstant.ITEM_DESC,RedisConstant.REDIS_TIME_OUT+rand);
+                return itemDesc;
+            }
+        }
+
+
         TbItemDesc itemDesc = tbItemDescMapper.findTbItemDescByItemId(itemId);
+        if(itemDesc==null){
+            jedisClient.set(RedisConstant.ITEM_DESC,"null");
+            jedisClient.expire(RedisConstant.ITEM_DESC,RedisConstant.REDIS_TIME_OUT);
+        }else {
+            //吧查询数据库得到的结果集存入到redis缓存中
+            jedisClient.set(RedisConstant.ITEM_DESC, JsonUtils.objectToJson(itemDesc));
+            jedisClient.expire(RedisConstant.ITEM_DESC,RedisConstant.REDIS_TIME_OUT+rand);
+        }
         return itemDesc;
     }
 

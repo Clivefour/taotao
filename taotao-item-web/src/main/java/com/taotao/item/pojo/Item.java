@@ -6,7 +6,6 @@ public class Item extends TbItem {
     public String[] getImages() {
         String image2 = this.getImage();
         if (image2 != null && !"".equals(image2)) {
-
             String[] strings = image2.split("http");
             String[] images = new String[strings.length-1];
             for(int i = 1; i<strings.length;i++){
