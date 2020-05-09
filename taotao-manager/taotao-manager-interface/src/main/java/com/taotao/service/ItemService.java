@@ -47,6 +47,6 @@ public interface ItemService {
      */
     TaotaoResult addItem(TbItem tbItem, String itemDesc);
 
-
+    TbItemDesc findTbItemDescByItemId(Long itemId);
 
 }

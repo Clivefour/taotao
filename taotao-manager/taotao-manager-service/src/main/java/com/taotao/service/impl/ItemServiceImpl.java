@@ -34,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private Destination destination;
 
 
+
     @Override
     public TbItem findTbItemById(Long itemId) {
         TbItem tbItem = tbItemMapper.findTbItemById(itemId);
@@ -191,6 +192,12 @@ public class ItemServiceImpl implements ItemService {
 
 
         return TaotaoResult.build(200,"添加商品成功");
+    }
+
+    @Override
+    public TbItemDesc findTbItemDescByItemId(Long itemId) {
+        TbItemDesc itemDesc = tbItemDescMapper.findTbItemDescByItemId(itemId);
+        return itemDesc;
     }
 
 
