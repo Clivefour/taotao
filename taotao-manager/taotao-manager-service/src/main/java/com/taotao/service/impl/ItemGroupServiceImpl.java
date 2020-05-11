@@ -21,14 +21,18 @@ public class ItemGroupServiceImpl implements ItemGroupService {
         if(groups.size()<=0){
             return TaotaoResult.build(500,"该商品分类下没有商品规格参数组");
         }
-        return TaotaoResult.ok();
+        for (TbItemParamGroup group:groups) {
+            List<TbItemParamKey> paramKeys = tbItemParamMapper.findTbItemParamKeyByGroupId(group.getId());
+            group.setParamKeys(paramKeys);
+        }
+
+        return TaotaoResult.ok(groups);
     }
 
     @Override
     public TaotaoResult addGroup(Long cId, String params) {
-        if(params==null||"".equals(params)){
-            return TaotaoResult.build(500,"添加规格参数失败");
-        }
+        //因为 页面拼接字符串 可能出现的情况为  ",clive,clive"
+
         List<TbItemParamGroup> groups = new ArrayList<TbItemParamGroup>();
         String[] groupAndKey = params.split("clive");
         for (String str:groupAndKey) {

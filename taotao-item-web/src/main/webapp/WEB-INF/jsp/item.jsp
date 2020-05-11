@@ -273,7 +273,11 @@
                     //返回商品规格的html，直接显示到页面
                     /*	alert(data);
                         alert(data.toString());*/
+
                     $("#product-detail-2").append(data);
+
+
+
                     //更改flag状态
                     itemControl.haveParam = true;
                 });

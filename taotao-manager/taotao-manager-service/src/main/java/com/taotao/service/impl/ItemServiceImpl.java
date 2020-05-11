@@ -5,6 +5,7 @@ import com.aliyun.oss.OSSClientBuilder;
 import com.taotao.constant.RedisConstant;
 import com.taotao.mapper.TbItemDescMapper;
 import com.taotao.mapper.TbItemMapper;
+import com.taotao.mapper.TbItemParamMapper;
 import com.taotao.pojo.*;
 import com.taotao.service.ItemService;
 import com.taotao.service.JedisClient;
@@ -34,6 +35,8 @@ public class ItemServiceImpl implements ItemService {
     private Destination destination;
     @Autowired
     private JedisClient jedisClient;
+    @Autowired
+    private TbItemParamMapper tbItemParamMapper;
 
 
 
@@ -172,7 +175,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public TaotaoResult addItem(TbItem tbItem, String itemDesc) {
+    public TaotaoResult addItem(TbItem tbItem, String itemDesc, List<Integer> paramKeyIds, List<String> paramValue) {
         //生成一个商品id
         final Long itemId = IDUtils.genItemId();
         //生成一个当前时间 作为 创建时间和修改时间
@@ -206,6 +209,18 @@ public class ItemServiceImpl implements ItemService {
          *
          */
 
+        for(int x = 0;x<paramKeyIds.size();x++){
+            TbItemParamValue tbItemParamValue = new TbItemParamValue();
+            tbItemParamValue.setItemId(itemId);
+            tbItemParamValue.setParamId(paramKeyIds.get(x));
+            tbItemParamValue.setParamValue(paramValue.get(x));
+            int y = tbItemParamMapper.addGroupValue(tbItemParamValue);
+            if(y<=0){
+                return TaotaoResult.build(500,"添加商品规格参数信息失败");
+            }
+        }
+
+        //solr缓存同步  使用activeMQ 消息对象
         jmsTemplate.send(destination, new MessageCreator() {
             @Override
             public Message createMessage(Session session) throws JMSException {
@@ -247,6 +262,31 @@ public class ItemServiceImpl implements ItemService {
             jedisClient.expire(RedisConstant.ITEM_DESC,RedisConstant.REDIS_TIME_OUT+rand);
         }
         return itemDesc;
+    }
+
+    @Override
+    public List<TbItemParamGroup> findTbItemGroupByItemId(Long itemId) {
+        int rand = (int)(Math.random()*1000)+1;
+        String json = jedisClient.get(RedisConstant.ITEM_PARAM);
+        if(StringUtils.isNotBlank(json)){
+            if(json.equals("null")){
+                return null;
+            }else{
+                List<TbItemParamGroup> itemGroup = JsonUtils.jsonToPojo(json, List.class);
+                jedisClient.expire(RedisConstant.ITEM_PARAM,RedisConstant.REDIS_TIME_OUT+rand);
+                return itemGroup;
+            }
+        }
+        List<TbItemParamGroup> itemGroup = tbItemParamMapper.findTbItemGroupByItemId(itemId);
+        if(itemGroup==null){
+            jedisClient.set(RedisConstant.ITEM_PARAM,"null");
+            jedisClient.expire(RedisConstant.ITEM_PARAM,RedisConstant.REDIS_TIME_OUT);
+        }else {
+            //吧查询数据库得到的结果集存入到redis缓存中
+            jedisClient.set(RedisConstant.ITEM_PARAM, JsonUtils.objectToJson(itemGroup));
+            jedisClient.expire(RedisConstant.ITEM_PARAM,RedisConstant.REDIS_TIME_OUT+rand);
+        }
+        return itemGroup;
     }
 
 

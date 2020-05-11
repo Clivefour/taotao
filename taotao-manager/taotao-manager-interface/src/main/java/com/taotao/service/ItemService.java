@@ -43,10 +43,18 @@ public interface ItemService {
      * 添加商品信息到数据库中
      * @param tbItem 商品基本信息
      * @param itemDesc 商品描述信息
+     * @param paramKeyIds 规格参数项id集合
+     * @param paramValue 规格参数值集合
      * @return
      */
-    TaotaoResult addItem(TbItem tbItem, String itemDesc);
+    TaotaoResult addItem(TbItem tbItem, String itemDesc, List<Integer> paramKeyIds, List<String> paramValue);
 
     TbItemDesc findTbItemDescByItemId(Long itemId);
 
+    /**
+     * 根据商品id 查询商品规格参数组和规格参数项和规格参数值信息
+     * @param itemId 商品id
+     * @return
+     */
+    List<TbItemParamGroup> findTbItemGroupByItemId(Long itemId);
 }

@@ -1,9 +1,12 @@
 package com.taotao.pojo;
 
-public class TbItemParamValue {
+import java.io.Serializable;
+
+public class TbItemParamValue implements Serializable {
 	private Long itemId;
 	private Integer paramId;
 	private String paramValue;
+
 	public Long getItemId() {
 		return itemId;
 	}
