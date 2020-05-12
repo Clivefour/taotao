@@ -1,0 +1,104 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	   http://www.springframework.org/schema/context
+	   http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	   http://code.alibabatech.com/schema/dubbo
+	   http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+       http://www.springframework.org/schema/aop
+	   http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+	   http://www.springframework.org/schema/tx
+	   http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+	   http://www.springframework.org/schema/util
+	   http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+    <!-- 加载配置文件 -->
+    <context:property-placeholder location="classpath:*.properties" />
+    <!-- 数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="maxActive" value="10" />
+        <property name="minIdle" value="5" />
+    </bean>
+    <!-- 让spring管理sqlsessionfactory 使用mybatis和spring整合包中的 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 数据库连接池 -->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 加载mybatis的全局配置文件 -->
+        <property name="configLocation" value="classpath:SqlMapConfig.xml" />
+    </bean>
+    <!--扫描指定包下面的 mybatis映射文件 和接口 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.taotao.mapper" />
+    </bean>
+
+    <!--扫描service 层的 注解-->
+    <context:component-scan base-package="com.taotao.sso.service"></context:component-scan>
+
+    <!-- 事务管理器 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 数据源 -->
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <!-- 通知 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!-- 传播行为 -->
+            <tx:method name="save*" propagation="REQUIRED" />
+            <tx:method name="insert*" propagation="REQUIRED" />
+            <tx:method name="add*" propagation="REQUIRED" />
+            <tx:method name="create*" propagation="REQUIRED" />
+            <tx:method name="delete*" propagation="REQUIRED" />
+            <tx:method name="update*" propagation="REQUIRED" />
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true" />
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+    <!-- 切面 -->
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice"
+                     pointcut="execution(* com.taotao.sso.service.*.*(..))" />
+    </aop:config>
+
+    <!--配置redis连接池
+        JedisPool pool = new JedisPool("192.168.175.100",6379);
+        单例设计模式
+    -->
+    <!-- 配置单机版的连接 -->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg name="host" value="192.168.175.100"/>
+        <constructor-arg name="port" value="6379"/>
+    </bean>
+
+
+    <!--发布服务到注册中心去-->
+    <!-- 使用dubbo发布服务 -->
+    <!-- 提供方应用信息，用于计算依赖关系 -->
+    <dubbo:application name="taotao-sso" />
+    <dubbo:registry protocol="zookeeper" address="192.168.175.100:2181" />
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20883" />
+
+    <!--我们在service里面 配置的都是 服务的发布者-->
+
+    <!-- 声明需要暴露的服务接口
+        1.你要发送哪个接口 必须吧那个接口的全类名给我
+        2.这个接口的实现类 id
+        接口和实现类 有关系了  -->
+
+    <dubbo:service interface="com.taotao.sso.service.UserService" ref="userServiceImpl" />
+
+
+
+</beans>
