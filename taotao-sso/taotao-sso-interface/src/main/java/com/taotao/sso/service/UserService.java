@@ -33,4 +33,11 @@ public interface UserService {
      * @return 用户信息的json字符串
      */
     TaotaoResult getUserByToken(String token);
+
+    /**
+     * 删除token来退出登录状态
+     * @param token
+     * @return
+     */
+    TaotaoResult deleteToken(String token);
 }

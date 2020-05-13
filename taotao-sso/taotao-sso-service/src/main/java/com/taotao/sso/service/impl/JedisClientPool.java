@@ -84,6 +84,12 @@ public class JedisClientPool implements JedisClient {
         jedis.close();
         return result;
     }
+    public Long del(String key){
+        Jedis jedis = jedisPool.getResource();
+        Long result = jedis.del(key);
+        jedis.close();
+        return result;
+    }
 
 
 }

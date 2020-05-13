@@ -16,7 +16,9 @@ public interface JedisClient {
     Long hset(String key, String field, String value);
     //从hash散列中取数据
     String hget(String key, String field);
-    //删除key
+    //删除散列key
     Long hdel(String key, String... field);
+    //删除key
+    Long del(String key);
 
 }

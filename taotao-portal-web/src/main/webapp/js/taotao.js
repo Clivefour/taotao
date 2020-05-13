@@ -1,5 +1,6 @@
 var TT = TAOTAO = {
     checkLogin : function(){
+        //使用jQuery的方法  从 cookie 的key为TT_TOKEN里面取值
         var _ticket = $.cookie("TT_TOKEN");
         if(!_ticket){
             return ;

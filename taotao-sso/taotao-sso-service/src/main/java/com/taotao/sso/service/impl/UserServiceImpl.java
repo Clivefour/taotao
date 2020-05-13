@@ -1,6 +1,5 @@
 package com.taotao.sso.service.impl;
 
-import com.sun.corba.se.impl.oa.toa.TOA;
 import com.taotao.constant.RedisConstant;
 import com.taotao.mapper.TbUserMapper;
 import com.taotao.pojo.TaotaoResult;
@@ -12,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-
 import java.util.Date;
 import java.util.UUID;
 
@@ -119,5 +117,14 @@ public class UserServiceImpl implements UserService {
         }
         TbUser tbUser = JsonUtils.jsonToPojo(json, TbUser.class);
         return TaotaoResult.ok(tbUser);
+    }
+
+    @Override
+    public TaotaoResult deleteToken(String token) {
+        Long result = jedisClient.del(RedisConstant.USER_INFO + ":" + token);
+        if(result <= 0){
+            return TaotaoResult.build(500,"退出失败");
+        }
+        return TaotaoResult.ok();
     }
 }
